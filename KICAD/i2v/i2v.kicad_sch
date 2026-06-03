@@ -4527,7 +4527,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100uF"
+		(property "Value" "22uF"
 			(at 92.71 42.2909 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5767,7 +5767,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100uF"
+		(property "Value" "22uF"
 			(at 92.71 57.5309 0)
 			(show_name no)
 			(do_not_autoplace no)
