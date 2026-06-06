@@ -1,0 +1,36 @@
+#!/usr/bin/gnuplot
+
+set terminal png size 800,600
+
+#set log y
+set xlabel "Vin, V"
+set ylabel "Vout/Vin"
+set key top right
+set grid mxtics mytics xtics ytics
+set log
+
+set output "plot_fre1.png"
+
+plot [1000:] [0.1:1000]\
+  "A1S1_fre.dat" u 1:($4/$8) w lp pt 7 title "S1",\
+  "A1S2_fre.dat" u 1:($4/$8) w lp pt 7 title "S2",\
+  "A1S3_fre.dat" u 1:($4/$8) w lp pt 7 title "S3",\
+  "A1S4_fre.dat" u 1:($4/$8) w lp pt 7 title "S4",\
+  "A1S5_fre.dat" u 1:($4/$8) w lp pt 7 title "S5",\
+  "A1S6_fre.dat" u 1:($4/$8) w lp pt 7 title "S6",\
+
+set output "plot_fre2.png"
+
+plot [1000:] [0.1:1000]\
+  "A2S1_fre.dat" u 1:($4/$8) w lp pt 7 title "S1",\
+  "A2S2_fre.dat" u 1:($4/$8) w lp pt 7 title "S2",\
+  "A2S3_fre.dat" u 1:($4/$8) w lp pt 7 title "S3",\
+  "A2S4_fre.dat" u 1:($4/$8) w lp pt 7 title "S4",\
+  "A2S5_fre.dat" u 1:($4/$8) w lp pt 7 title "S5",\
+  "A2S6_fre.dat" u 1:($4/$8) w lp pt 7 title "S6",\
+
+set output "plot_fre3.png"
+
+plot [1000:] []\
+  "A2S6_fre.dat" u 1:($4/$8) w lp pt 7 title "S4",\
+  "A2S6_fre_1.dat" u 1:($4/$8) w lp pt 7 title "S4",\

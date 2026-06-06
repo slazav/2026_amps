@@ -1,0 +1,60 @@
+#!/usr/bin/gnuplot
+
+set terminal png size 800,600
+set output "plot_amp1.png"
+
+#set log y
+set xlabel "Vin, V"
+set ylabel "Vout/Vin"
+set key top right
+set grid mxtics mytics xtics ytics
+set log
+
+
+f(x) = A
+fit [:7] f(x) "A1S1_amp.dat" u 8:($4/$8) via A
+print "A1S1: ", A
+fit [:2] f(x) "A1S2_amp.dat" u 8:($4/$8) via A
+print "A1S2: ", A
+fit [:0.7] f(x) "A1S3_amp.dat" u 8:($4/$8) via A
+print "A1S3: ", A
+fit [:0.2] f(x) "A1S4_amp.dat" u 8:($4/$8) via A
+print "A1S4: ", A
+fit [:0.07] f(x) "A1S5_amp.dat" u 8:($4/$8) via A
+print "A1S5: ", A
+fit [:0.02] f(x) "A1S6_amp.dat" u 8:($4/$8) via A
+print "A1S6: ", A
+
+plot [0.001:30] [:1000]\
+  "A1S1_amp.dat" u 8:($4/$8) w lp pt 7 title "S1",\
+  "A1S2_amp.dat" u 8:($4/$8) w lp pt 7 title "S2",\
+  "A1S3_amp.dat" u 8:($4/$8) w lp pt 7 title "S3",\
+  "A1S4_amp.dat" u 8:($4/$8) w lp pt 7 title "S4",\
+  "A1S5_amp.dat" u 8:($4/$8) w lp pt 7 title "S5",\
+  "A1S6_amp.dat" u 8:($4/$8) w lp pt 7 title "S6",\
+  16/x lc 0 notitle
+
+set output "plot_amp2.png"
+
+f(x) = A
+fit [:7] f(x) "A2S1_amp.dat" u 8:($4/$8) via A
+print "A2S1: ", A
+fit [:2] f(x) "A2S2_amp.dat" u 8:($4/$8) via A
+print "A2S2: ", A
+fit [:0.7] f(x) "A2S3_amp.dat" u 8:($4/$8) via A
+print "A2S3: ", A
+fit [:0.2] f(x) "A2S4_amp.dat" u 8:($4/$8) via A
+print "A2S4: ", A
+fit [:0.07] f(x) "A2S5_amp.dat" u 8:($4/$8) via A
+print "A2S5: ", A
+fit [:0.02] f(x) "A2S6_amp.dat" u 8:($4/$8) via A
+print "A2S6: ", A
+
+plot [0.001:30] [:1000]\
+  "A2S1_amp.dat" u 8:($4/$8) w lp pt 7 title "S1",\
+  "A2S2_amp.dat" u 8:($4/$8) w lp pt 7 title "S2",\
+  "A2S3_amp.dat" u 8:($4/$8) w lp pt 7 title "S3",\
+  "A2S4_amp.dat" u 8:($4/$8) w lp pt 7 title "S4",\
+  "A2S5_amp.dat" u 8:($4/$8) w lp pt 7 title "S5",\
+  "A2S6_amp.dat" u 8:($4/$8) w lp pt 7 title "S6",\
+  16/x lc 0 notitle

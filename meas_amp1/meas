@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+
+import numpy
+import time
+import sys
+import datetime
+sys.path.append('../../')
+import py_homelab as lab
+
+a=2
+s=5
+rr=(1e9, 10e3,  3300, 1000, 330,   100)
+kk=(1.00, 6.00, 16.18, 51.2, 152.2, 501.5)
+
+amin=0.1/kk[s-1]
+if amin<0.001: amin=0.001
+amax=20/kk[s-1]
+
+freqs=[1e3]
+amps=numpy.geomspace(amin, amax, 51)
+
+lab.meas_sweep(fname="S%d_amp.dat"%(s), amps=amps, freqs=freqs, chs='AB',
+                   ext_gen=True, ext_gen_ch=0,
+                   dt=1e-7, periods=100)
+
+freqs = numpy.geomspace(1e3,4e6, 31)
+amps  = (8/kk[s-1],)
+
+lab.meas_sweep(fname="S%d_fre_1.dat"%(s), amps=amps, freqs=freqs, chs='AB',
+                   ext_gen=True, ext_gen_ch=0,
+                   dt=1e-7, periods=100)

@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+# Continuous measurement of gain (for tests)
+
+import numpy
+import time
+import sys
+import datetime
+sys.path.append('../../')
+import py_homelab as lab
+
+
+# based on function from py_homelab
+def meas_cont(
+      amp=1,            # amplitude
+      freq=1e3,         # frequency
+      ext_gen=False,    # use internal/external generator
+      ext_gen_ch=0,     # channel for external generator
+      chs='AB',         # oscilloscope channel(s)
+      dt=1e-7,          # sampling step
+      periods=100,      # number of periods to measure
+    ):
+
+  # open oscilloscope and get ranges
+  osc0 = lab.osc()
+
+  # open external generator if needed
+  if ext_gen:
+    gen0=lab.gen()
+    gen0.set_chans(ext_gen_ch==0,ext_gen_ch==1)
+
+  # set sine wave
+  if ext_gen: gen0.set_sine(ext_gen_ch, amp, freq)
+  else: osc0.set_sine(amp, freq)
+  time.sleep(0.01)
+
+  rngs=[amp,amp]
+  while True:
+    # do measurement (autorange)
+    npts=periods/dt/freq
+    ret = osc0.measure_autorange(chs, rngs, npts, dt, fmin=freq*0.95, fmax=freq*1.05)
+    r = [freq, amp]
+    for i in range(len(ret)):
+      r.append(ret[i][0])
+      r.append(ret[i][1])
+      r.append(ret[i][2])
+      r.append(rngs[i])
+      rngs[i] = ret[i][1]
+    print("%f %f  %f"%(r[0], r[1], r[3]/r[7]))
+
+  # switch generator off
+  if ext_gen: gen0.set_zero(ext_gen_ch)
+  else: osc0.set_zero()
+  ff.close()
+
+meas_cont(amp=0.01, freq=1e3, chs='AB',
+         ext_gen=True, ext_gen_ch=0,
+         dt=1e-7, periods=100)
