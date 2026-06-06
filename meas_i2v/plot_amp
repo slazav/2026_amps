@@ -1,0 +1,65 @@
+#!/usr/bin/gnuplot
+
+set terminal png size 800,600
+set output "plot_amp1.png"
+
+#set log y
+set xlabel "Iin, mA"
+set ylabel "Vout/Iin, kOhm"
+set key top right
+set grid mxtics mytics xtics ytics
+set log
+
+
+f(x) = A
+fit [:7] f(x) "A1S1_amp.dat" u 8:($4/$8) via A
+print "A1S1: ", A
+fit [:2] f(x) "A1S2_amp.dat" u 8:($4/$8) via A
+print "A1S2: ", A
+fit [:0.7] f(x) "A1S3_amp.dat" u 8:($4/$8) via A
+print "A1S3: ", A
+fit [:0.2] f(x) "A1S4_amp.dat" u 8:($4/$8) via A
+print "A1S4: ", A
+fit [:0.07] f(x) "A1S5_amp.dat" u 8:($4/$8) via A
+print "A1S5: ", A
+fit [:0.02] f(x) "A1S6_amp.dat" u 8:($4/$8) via A
+print "A1S6: ", A
+
+
+R1=10e3
+R2=100e3
+R3=1e6
+
+plot [0.0001:2] [10:2000]\
+  "A1S1_amp.dat" u (1e3*$8/R1):($4/$8*R1/1e3) w lp pt 7 title "22k",\
+  "A1S2_amp.dat" u (1e3*$8/R1):($4/$8*R1/1e3) w lp pt 7 title "51k",\
+  "A1S3_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "100k",\
+  "A1S4_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "220k",\
+  "A1S5_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "510k",\
+  "A1S6_amp.dat" u (1e3*$8/R3):($4/$8*R3/1e3) w lp pt 7 title "1M",\
+  16/x lc 0 notitle
+
+set output "plot_amp2.png"
+
+f(x) = A
+fit [:7] f(x) "A2S1_amp.dat" u 8:($4/$8) via A
+print "A2S1: ", A
+fit [:2] f(x) "A2S2_amp.dat" u 8:($4/$8) via A
+print "A2S2: ", A
+fit [:0.7] f(x) "A2S3_amp.dat" u 8:($4/$8) via A
+print "A2S3: ", A
+fit [:0.2] f(x) "A2S4_amp.dat" u 8:($4/$8) via A
+print "A2S4: ", A
+fit [:0.07] f(x) "A2S5_amp.dat" u 8:($4/$8) via A
+print "A2S5: ", A
+fit [:0.02] f(x) "A2S6_amp.dat" u 8:($4/$8) via A
+print "A2S6: ", A
+
+plot [0.0001:2] [10:2000]\
+  "A2S1_amp.dat" u (1e3*$8/R1):($4/$8*R1/1e3) w lp pt 7 title "22k",\
+  "A2S2_amp.dat" u (1e3*$8/R1):($4/$8*R1/1e3) w lp pt 7 title "51k",\
+  "A2S3_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "100k",\
+  "A2S4_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "220k",\
+  "A2S5_amp.dat" u (1e3*$8/R2):($4/$8*R2/1e3) w lp pt 7 title "510k",\
+  "A2S6_amp.dat" u (1e3*$8/R3):($4/$8*R3/1e3) w lp pt 7 title "1M",\
+  16/x lc 0 notitle
