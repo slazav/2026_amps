@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+rnoms=("22e3", "51e3", "100e3", "220e3", "510e3", "1e6")
+loads=("1e4", "1e4", "1e5", "1e5", "1e5", "1e6")
+
+a=2
+(fig, ax) = plt.subplots(2,2, figsize=(12,10), layout='tight')
+for a in (1,2):
+  for s in (1,2,3,4,5,6):
+    name = "A%dS%d"%(a,s)
+    ff = "data1/%s_fre.dat"%(name)
+    fa = "data1/%s_amp.dat"%(name)
+
+    l = loads[s-1]
+    r = rnoms[s-1]
+
+    # amplitude plot
+    if os.path.isfile(fa):
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(fa, unpack=1)
+      k=v1/v2 * float(l)
+      inp = v2 / float(l)
+      ax[a-1][0].loglog(inp, k, '.-', label="S%d L%s"%(s,l))
+      # save gain (use region where output voltage <8V)
+
+    # frequency plot
+    if os.path.isfile(ff):
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+      k=v1/v2 * float(l)
+      inp = v2 / float(l)
+      ax[a-1][1].loglog(f2, k, '.-', label="S%d L%s"%(s,l))
+
+    # plot nominal value
+    xx=numpy.geomspace(1e2, 1e7, 101)
+    ax[a-1][0].loglog(xx, xx*0+float(r), 'k-', linewidth=0.5)
+    xx=[1e-7,1e-2]
+    ax[a-1][0].loglog(xx, [float(r)]*2, 'm-', linewidth=0.5)
+
+  # power supply limit
+  xx=numpy.array([1e-8, 1e-2])
+  ax[a-1][0].loglog(xx, 16/xx, 'k-', linewidth=0.5, label="16/x")
+
+  ax[a-1][0].set_title("gain vs input amplitude, channel %d"%(a))
+  ax[a-1][1].set_title("gain vs frequncy, channel %d"%(a))
+
+  ax[a-1][0].set_xlabel("amplitude, App")
+  ax[a-1][1].set_xlabel("freq, Hz")
+
+  ax[a-1][0].set_xlim((8e-8,1e-3))
+  ax[a-1][1].set_xlim((8e2,5e6))
+
+  for i in (0,1):
+    ax[a-1][i].set_ylim((1e4,3e6))
+    ax[a-1][i].set_ylabel("Transimpedance, Ohm")
+    ax[a-1][i].grid(which='both')
+    ax[a-1][i].legend()
+
+plt.savefig('plot_first.png')
+
+
