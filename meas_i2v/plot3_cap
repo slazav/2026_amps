@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+(f, ref) = numpy.loadtxt("data3_0.0pF/noise_osc_A_0.01.dat", unpack=1)
+
+
+rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+loads=(10e3, 10e3, 100e3, 100e3, 100e3, 1e6)
+
+gains = {}
+a=2
+caps=(0.0, 1.0, 4.7)
+(fig, ax) = plt.subplots(2,len(caps), figsize=(12,10), layout='tight')
+for ic in range(len(caps)):
+  cap=caps[ic]
+  for l in ('1e4','1e5','1e6'):
+
+    for s in (1,2,3,4,5,6):
+      name = "A%dS%d"%(a,s)
+      fn = "data3_%.1fpF/%s_noise.dat"%(cap, name)
+      ff = "data3_%.1fpF/%s_L%s_fre.dat"%(cap, name, l)
+      fa = "data3_%.1fpF/%s_L%s_amp.dat"%(cap, name, l)
+
+      # frequency plot
+      if os.path.isfile(ff):
+        # plot nominal value
+        xx=numpy.geomspace(1e2, 1e7, 101)
+        ax[0][ic].plot(xx, xx*0+rnoms[s-1], 'k-', linewidth=0.5)
+        (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+        k=v1/v2 * float(l)
+        inp = v2 / float(l)
+        ax[0][ic].loglog(f2, k, '.-', label="S%d L%s"%(s,l))
+
+      # raw noise plot
+      if os.path.isfile(fn) and l=="1e4":
+        (f, n) = numpy.loadtxt(fn, unpack=1)
+        ax[1][ic].loglog(f, 1e9*numpy.sqrt(n-ref), label="S%d"%(s))
+
+  # oscilloscope noise
+  #ax[1][ic].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")
+
+  # plot capacitance
+  xx=numpy.geomspace(1e2, 1e7, 101)
+  if cap!=0:
+    ax[0][ic].plot(xx, 1e12/(2*3.14159*xx*cap), 'k-', linewidth=0.5, label="%.1f pF"%(cap))
+
+
+  ax[0][ic].set_title("gain vs frequncy, C=%.1f pF"%(cap))
+  ax[1][ic].set_title("output noise, C=%.1f pF"%(cap))
+
+  ax[0][ic].set_xlabel("freq, Hz")
+  ax[1][ic].set_xlabel("freq, Hz")
+
+  ax[0][ic].set_ylabel("Transimpedance, Ohm")
+  ax[1][ic].set_ylabel("voltage noise density, nV/sqrt(Hz)")
+
+
+  ax[0][ic].set_xlim((8e2,5e6))
+  ax[1][ic].set_xlim((10,1e6))
+
+  ax[0][ic].set_ylim((1e5,1e7))
+  ax[1][ic].set_ylim((10,1e4))
+
+  for i in (0,1):
+    ax[i][ic].grid(which='both')
+    ax[i][ic].legend(loc="lower left")
+
+plt.savefig('plot_i2v3_cap.png')
+
+

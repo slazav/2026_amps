@@ -58,6 +58,6 @@ for a in (1,2):
     ax[a-1][i].grid(which='both')
     ax[a-1][i].legend()
 
-plt.savefig('plot_first.png')
+plt.savefig('plot_i2v1.png')
 
 

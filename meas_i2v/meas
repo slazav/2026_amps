@@ -7,24 +7,26 @@ import datetime
 sys.path.append('../../')
 import py_homelab as lab
 
+a=2
 s=1
+L="1e6"
 rr=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
-kk=(22e3/10e3, 51e3/10e3, 100e3/100e3, 220e3/100e3, 510e3/100e3, 1)
 
-amin=0.1/kk[s-1]
+
+amin=0.1*float(L)/rr[s-1]
 if amin<0.001: amin=0.001
-amax=20/kk[s-1]
+amax=20*float(L)/rr[s-1]
 
 freqs=[1e3]
 amps=numpy.geomspace(amin, amax, 51)
 
-lab.meas_sweep(fname="S%d_amp.dat"%(s), amps=amps, freqs=freqs, chs='AB',
+lab.meas_sweep(fname="A%dS%d_L%s_amp.dat"%(a,s,L), amps=amps, freqs=freqs, chs='AB',
                    ext_gen=True, ext_gen_ch=0,
                    dt=1e-7, periods=100)
 
 freqs = numpy.geomspace(1e3,4e6, 101)
-amps  = (8/kk[s-1],)
+amps  = (float(L)/rr[s-1],)
 
-lab.meas_sweep(fname="S%d_fre.dat"%(s), amps=amps, freqs=freqs, chs='AB',
+lab.meas_sweep(fname="A%dS%d_L%s_fre.dat"%(a,s,L), amps=amps, freqs=freqs, chs='AB',
                    ext_gen=True, ext_gen_ch=0,
                    dt=1e-7, periods=100)
