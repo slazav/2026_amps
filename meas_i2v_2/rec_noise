@@ -1,0 +1,13 @@
+# scale 0.02 0.05 0.1 0.2 0.5 1 2 5 10 20
+
+sc=0.01
+ch=A
+avr=10
+
+pref=A2S1
+
+device_c reload
+~/PROG/tcl-exp/bin/get_noise -osc_dev osc -scale $sc\
+   -dt 1e-7 -N 8e6 -avr ${avr} -nout 1024 -log 1 -chan $ch -del 0.1\
+   > ${pref}_noise.dat
+
