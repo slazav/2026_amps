@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+datadir="data5_vcc"
+
+(f, ref) = numpy.loadtxt("%s/noise_osc_A_0.01.dat"%(datadir), unpack=1)
+
+
+gains = {}
+a=2
+l="1e5"
+#for a in (1,2):
+(fig, ax) = plt.subplots(2,2, figsize=(12,10), layout='tight')
+
+for vcc in (8,10,12,14,16,18,20):
+  for s in (1,2,3,4,5,6):
+    name = "A%dS%d_L%s_%02d"%(a,s,l,vcc)
+    nname = "A%dS%d_%02d"%(a,s,vcc)
+    fn = "%s/%s_noise.dat"%(datadir, nname)
+    ff = "%s/%s_fre.dat"%(datadir, name)
+    fa = "%s/%s_amp.dat"%(datadir, name)
+    print(fn)
+    # frequency plot
+    if os.path.isfile(ff):
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+      k=v1/v2
+      ax[0][1].loglog(f0, k, '.-', label="%d"%(vcc))
+
+    # amplitude plot
+    if os.path.isfile(fa):
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(fa, unpack=1)
+      k=v1/v2
+      ax[0][0].loglog(v2, k, '.-', label="%d"%(vcc))
+      # save gain (use region where output voltage <8V)
+      gains[name] = numpy.mean(k[v1<8])
+
+    # raw noise plot
+    if os.path.isfile(fn):
+      (f, n) = numpy.loadtxt(fn, unpack=1)
+      ax[1][0].loglog(f, 1e9*numpy.sqrt(n), label="%d"%(vcc))
+
+    # input noise plot
+    if os.path.isfile(fn) and os.path.isfile(ff):
+      k = numpy.interp(f, f0, k)
+      ax[1][1].loglog(f, 1e9*numpy.sqrt(n)/k, label="%d"%(vcc))
+
+
+ax[1][0].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")
+
+ax[0][0].set_title("gain vs input amplitude")
+ax[0][1].set_title("gain vs frequncy")
+ax[1][0].set_title("output noise")
+ax[1][1].set_title("input noise")
+
+ax[0][0].set_xlabel("amp, Vpp")
+ax[0][1].set_xlabel("freq, Hz")
+xx=numpy.array([1e-3, 1e2])
+ax[0][0].plot(xx, 16/xx, 'k-', linewidth=0.5, label="16/x")
+ax[0][0].set_ylim((0.1,1e3))
+ax[0][1].set_ylim((0.1,1e3))
+
+
+for i in (0,1):
+  ax[1][i].set_xlim((10,1e6))
+  ax[1][i].set_ylim((1,1e4))
+  ax[1][i].set_xlabel("freq, Hz")
+  ax[1][i].set_ylabel("voltage noise density, nV/sqrt(Hz)")
+  ax[0][i].set_ylabel("gain")
+
+for i in (0,1):
+  for j in (0,1):
+    ax[i][j].grid(which='both')
+    ax[i][j].legend()
+
+plt.savefig('plot5%s.png'%(a))
+
+plt.clf()

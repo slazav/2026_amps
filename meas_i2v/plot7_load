@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+import re
+
+rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+
+##################
+# Label: A1S6_L1e4*
+def plot_sample(ax1, ax2, ddir, pref, label, color=''):
+
+  p1 = re.search(r'^A([0-9])S([0-9])_L([1-9e]+)', pref)
+  if not p1: raise Exception("Bad prefix: " + pref)
+  na = int(p1.group(1))
+  ns = int(p1.group(2))
+  ld = float(p1.group(3))
+
+  # frequency-dependent load
+  def ldf(R, fre):
+    Cl = 5.1e-12
+    Clz = 1/(1j*2*numpy.pi*fre*Cl)
+    Z = numpy.abs(R*Clz/(R+Clz))
+    return(Z)
+
+  ff = "%s/%s_fre.dat"%(ddir, pref)
+
+  # frequency plot
+  if os.path.isfile(ff):
+    # plot nominal value
+    xx=[1e2,1e7]
+    ax1.plot(xx, [rnoms[ns-1]]*2, 'k-', linewidth=0.5)
+    (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+    k1=v1/v2 * ld
+    k2=v1/v2 * ldf(ld, f2)
+    ax1.loglog(f2, k1, color+'.-', label=label)
+    ax2.loglog(f2, k2, color+'.-', label=label)
+
+#################
+
+(fig, ax) = plt.subplots(2,2, figsize=(12,8), layout='tight')
+
+ddir='data7'
+for a in (1,2):
+  for i, l in enumerate(('1e3', '1e4', '1e5', '1e6')):
+    label = l
+    for s in (1,2,3,4,5,6):
+      pref = 'A%dS%d_L%s'%(a,s,l)
+      if pref== 'A1S5_L1e3': continue
+      plot_sample(ax[0][a-1], ax[1][a-1], ddir, pref, color='C%d'%(i), label=label)
+      label=''
+
+
+for i in (0,1):
+  ax[0][i].set_title('Amplifier %s'%(i+1))
+  ax[0][i].set_ylim((1e3,5e6))
+  ax[1][i].set_ylim((1e3,2e6))
+
+  ax[0][i].set_ylabel('Vout/Vin * R_load')
+  ax[1][i].set_ylabel('Vout/Vin * Z_load')
+
+  for j in (0,1):
+    ax[i][j].set_xlabel('frequency, Hz')
+    ax[i][j].set_xlim((3e2,1e6))
+    ax[i][j].grid(which='both')
+    ax[i][j].legend(loc="upper left")
+
+
+plt.savefig('plot_i2v7_load.png')
+
+

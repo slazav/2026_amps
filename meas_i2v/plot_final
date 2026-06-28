@@ -6,8 +6,9 @@ import os.path
 import re
 
 rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+rnoms_l=('22k', '51k', '100k', '220k', '510k', '1M')
 
-(f, ref) = numpy.loadtxt("data1/osc_noise.dat", unpack=1)
+(f, ref) = numpy.loadtxt("data7/osc_noise.dat", unpack=1)
 
 ##################
 # Label: A1S6_L1e4*
@@ -98,20 +99,17 @@ def set_ax(ax):
 
 #################
 
-ddir='data3'
+ddir='data7'
 for a in (1,2):
   (fig, ax) = plt.subplots(2,2, figsize=(12,8), layout='tight')
   for s in (1,2,3,4,5,6):
-    pref = 'A%dS%d'%(a,s)
+    pref = 'A%dS%d_L1e5'%(a,s)
 
-#    plot_sample(ax, ddir, '%s_L1e3'%(pref), 'A1S1_L1e3', noise=0)
-#    plot_sample(ax, ddir, '%s_L1e4'%(pref), 'A1S1_L1e4', noise=0)
-    plot_sample(ax, ddir, '%s_L1e5'%(pref), 'A1S1_L1e5', noise=1)
-#    plot_sample(ax, ddir, '%s_L1e6'%(pref), 'A1S1_L1e6', noise=0)
+    plot_sample(ax, ddir, pref, rnoms_l[s-1], noise=1)
 
   set_ax(ax)
 
-  plt.savefig('plot%d.png'%(a))
+  plt.savefig('plot_i2v_final%d.png'%(a))
   plt.clf()
 
 

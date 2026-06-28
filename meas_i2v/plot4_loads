@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+loads=("1e4","1e5","1e6")
+
+a=2
+(fig, ax) = plt.subplots(1,len(loads), figsize=(16,6), layout='tight')
+for il in range(len(loads)):
+  l = loads[il]
+
+  for s in (1,2,3,4,5,6):
+    name = "A%dS%d_L%s"%(a,s,l)
+    #fn = "data_1.0pF_nl/A%dS%d_noise.dat"%(a,s)
+    ff = "data4/%s_fre.dat"%(name)
+    fa = "data4/%s_amp.dat"%(name)
+
+    # frequency plot
+    if os.path.isfile(ff):
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+      k=v1/v2 * float(l)
+      inp = v2 / float(l)
+      ax[il].loglog(f2, k, '.-', label="S%d"%(s))
+
+    # plot load cap
+    cap=1
+    capl=4
+    xx=numpy.geomspace(1e2, 1e7, 101)
+    xx1 = (1 + (2*3.14159*xx*float(l)*1e-12*capl)**2)
+    xx2 = (1 + (2*3.14159*xx*float(l)*1e-12*cap)**2)
+    ax[il].plot(xx, rnoms[s-1]*xx1/xx2, 'k-', linewidth=0.5)
+
+
+  # plot capacitance
+#  xx=numpy.geomspace(1e2, 1e7, 101)
+#  cap=1.0
+#  ax[il].plot(xx, 1e12/(2*3.14159*xx*cap), 'm-', linewidth=0.5, label="%.1f pF"%(cap))
+
+
+  ax[il].set_title("load: %s Ohm"%(l))
+  ax[il].set_xlabel("freq, Hz")
+  ax[il].set_ylabel("Transimpedance, Ohm")
+  ax[il].set_xlim((8e2,5e6))
+  ax[il].set_ylim((1e4,1e7))
+
+  ax[il].grid(which='both')
+  ax[il].legend()
+
+plt.savefig('plot_i2v4_loads.png')
+
+plt.clf()
+

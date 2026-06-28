@@ -8,7 +8,7 @@ import os.path
 
 
 rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
-loads=(10e3, 10e3, 100e3, 100e3, 100e3, 1e6)
+#loads=(10e3, 10e3, 100e3, 100e3, 100e3, 1e6)
 
 gains = {}
 a=2
@@ -17,8 +17,8 @@ caps=(0.0, 1.0, 4.7)
 for ic in range(len(caps)):
   cap=caps[ic]
   for l in ('1e4','1e5','1e6'):
-
     for s in (1,2,3,4,5,6):
+      r = rnoms[s-1]
       name = "A%dS%d"%(a,s)
       fn = "data3_%.1fpF/%s_noise.dat"%(cap, name)
       ff = "data3_%.1fpF/%s_L%s_fre.dat"%(cap, name, l)
@@ -38,6 +38,14 @@ for ic in range(len(caps)):
       if os.path.isfile(fn) and l=="1e4":
         (f, n) = numpy.loadtxt(fn, unpack=1)
         ax[1][ic].loglog(f, 1e9*numpy.sqrt(n-ref), label="S%d"%(s))
+
+      # plot load cap
+#      if os.path.isfile(ff):
+#        capl=9
+#        xx=numpy.geomspace(1e2, 1e7, 101)
+#        xx1 = (1 + (2*3.14159*xx*float(l)*1e-12*capl)**2)
+#        xx2 = (1 + (2*3.14159*xx*float(l)*1e-12*cap)**2)
+#        ax[0][ic].plot(xx, rnoms[s-1]*xx1/xx2, 'k-', linewidth=0.5)
 
   # oscilloscope noise
   #ax[1][ic].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")

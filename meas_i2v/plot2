@@ -1,0 +1,116 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+(f, ref) = numpy.loadtxt("data2/noise_osc_A_0.01.dat", unpack=1)
+
+
+rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+loads=(10e3, 10e3, 100e3, 100e3, 100e3, 1e6)
+
+gains = {}
+for a in (1,2):
+  (fig, ax) = plt.subplots(2,2, figsize=(12,10), layout='tight')
+
+  for s in (1,2,3,4,5,6):
+    name = "A%dS%d"%(a,s)
+    fn = "data2/%s_noise.dat"%(name)
+    ff = "data2/%s_fre.dat"%(name)
+    fa = "data2/%s_amp.dat"%(name)
+
+    # amplitude plot
+    if os.path.isfile(fa):
+      # plot nominal value
+      xx=[1e-7,1e-2]
+      ax[0][0].plot(xx, [rnoms[s-1]]*2, 'm-', linewidth=0.5)
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(fa, unpack=1)
+      k=v1/v2 * loads[s-1]
+      inp = v2 / loads[s-1]
+      ax[0][0].loglog(inp, k, '.-', label="S%d"%(s))
+      # save gain (use region where output voltage <8V)
+      gains[name] = numpy.mean(k[v1<8])
+
+    # frequency plot
+    if os.path.isfile(ff):
+      # plot nominal value
+      xx=[1e2,1e7]
+      ax[0][1].plot(xx, [rnoms[s-1]]*2, 'm-', linewidth=0.5)
+      (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+      k=v1/v2 * loads[s-1]
+      inp = v2 / loads[s-1]
+      ax[0][1].loglog(f2, k, '.-', label="S%d"%(s))
+
+    # raw noise plot
+    if os.path.isfile(fn):
+      (f, n) = numpy.loadtxt(fn, unpack=1)
+      ax[1][0].loglog(f, 1e9*numpy.sqrt(n), label="S%d"%(s))
+
+    # input noise plot
+    if os.path.isfile(fn) and os.path.isfile(ff):
+      k = numpy.interp(f, f0, k)
+      ax[1][1].loglog(f, 1e12*numpy.sqrt(n)/k, label="S%d"%(s))
+
+  # oscilloscope noise
+  ax[1][0].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")
+
+  # power supply limit
+  xx=numpy.array([1e-8, 1e-2])
+  ax[0][0].plot(xx, 16/xx, 'k-', linewidth=0.5, label="16/x")
+
+  ax[0][0].set_title("gain vs input amplitude")
+  ax[0][1].set_title("gain vs frequncy")
+  ax[1][0].set_title("output noise")
+  ax[1][1].set_title("input current noise")
+
+  ax[0][0].set_xlabel("amplitude, App")
+  ax[0][1].set_xlabel("freq, Hz")
+
+  ax[0][0].set_xlim((8e-8,1e-3))
+  ax[0][1].set_xlim((8e2,5e6))
+  ax[1][0].set_ylim((1,1e4))
+
+  ax[1][0].set_ylabel("voltage noise density, nV/sqrt(Hz)")
+  ax[1][1].set_ylabel("current noise density, pA/sqrt(Hz)")
+
+  for i in (0,1):
+    ax[1][i].set_xlim((10,1e6))
+    ax[0][i].set_ylim((1e4,3e6))
+    ax[1][i].set_xlabel("freq, Hz")
+    ax[0][i].set_ylabel("Transimpedance, Ohm")
+
+  for i in (0,1):
+    for j in (0,1):
+      ax[i][j].grid(which='both')
+      ax[i][j].legend()
+
+  plt.savefig('plot_i2v2_ch%s.png'%(a))
+
+plt.clf()
+
+# save gains to file and make plot
+fo = open("gains.dat", "w")
+print("# switch res  gain1 gain2", file=fo)
+for s in (1,2,3,4,5,6):
+  n1 = "A1S%d"%(s)
+  n2 = "A2S%d"%(s)
+  if n1 in gains: g1 = gains[n1]
+  else: g1=0
+  if n2 in gains: g2 = gains[n2]
+  else: g2=0
+  print("%d %5.0f  %6.4f %6.4f"%(s, rnoms[s-1], g1, g2), file=fo)
+fo.close()
+
+(fig, ax) = plt.subplots(1,1, figsize=(8,6), layout='tight')
+(ss, rr, g1,g2) = numpy.loadtxt("gains.dat", unpack=1)
+ax.semilogx(rr, 100*(g1-rr)/rr, "b*", label="channel 1")
+ax.semilogx(rr, 100*(g2-rr)/rr, "r*", label="channel 2")
+ax.legend()
+ax.grid(which='both')
+#ax.set_xlim((50,1e5))
+#ax.set_ylim((1,1e3))
+ax.set_xlabel("Gain resistor, Ohm")
+ax.set_ylabel("Transimpedance error, %")
+plt.savefig('plot_i2v2_gain.png')
+
