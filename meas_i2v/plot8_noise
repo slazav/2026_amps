@@ -1,0 +1,122 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+import re
+
+# Calculate and plot noise vs nominal transimpedance
+
+fmin=2e3
+fmax=2e4
+rnoms=(22e3, 51e3, 100e3, 220e3, 510e3, 1e6)
+rnoms_l=('22k', '51k', '100k', '220k', '510k', '1M')
+
+(f, ref) = numpy.loadtxt("data7/osc_noise.dat", unpack=1)
+
+##################
+# Label: A1S6_L1e4*
+def get_noise(ddir, pref):
+
+  p1 = re.search(r'^A([0-9])S([0-9])_L([1-9e]+)', pref)
+  if not p1: raise Exception("Bad prefix: " + pref)
+  na = int(p1.group(1))
+  ns = int(p1.group(2))
+  ld = float(p1.group(3))
+
+  # frequency-dependent load
+  def ldf(R, fre):
+    Cl = 5.1e-12
+    Clz = 1/(1j*2*numpy.pi*fre*Cl)
+    Z = numpy.abs(R*Clz/(R+Clz))
+    return(Z)
+
+  fn = "%s/A%dS%d_noise.dat"%(ddir, na,ns)
+  ff = "%s/%s_fre.dat"%(ddir, pref)
+
+  if not os.path.isfile(ff) or not os.path.isfile(fn):
+    return None
+
+  # gain vs freq
+  (f0,v0, f1,v1,o1,r1, f2,v2,o2,r2)  = numpy.loadtxt(ff, unpack=1)
+  k=v1/v2 * ldf(ld, f2)
+
+  # noise - ref
+  (ff, nn) = numpy.loadtxt(fn, unpack=1)
+  k = numpy.interp(ff, f0, k)
+  nn = (nn-ref)/k**2
+
+  ii = numpy.logical_and(ff>fmin, ff<fmax)
+
+  return 1e12*numpy.sqrt(numpy.mean(nn[ii]))
+
+
+#################
+def set_ax(ax):
+  # power supply limit
+  xx=numpy.array([1e-8, 1e-2])
+  ax[0][0].plot(xx, 16/xx, 'k-', linewidth=0.5, label="16/x")
+
+  ax[0][0].set_title("gain vs input amplitude")
+  ax[0][1].set_title("gain vs frequncy")
+  ax[1][0].set_title("output noise")
+  ax[1][1].set_title("input current noise")
+
+  ax[0][0].set_xlabel("input current, App")
+  ax[0][1].set_xlabel("freq, Hz")
+
+  ax[0][0].set_xlim((8e-8,1e-3))
+  ax[0][1].set_xlim((8e2,1e6))
+
+  ax[1][0].set_ylim((10,1e3))
+  ax[1][1].set_ylim((0.1,10))
+
+  ax[1][0].set_ylabel("voltage noise density, nV/sqrt(Hz)")
+  ax[1][1].set_ylabel("current noise density, pA/sqrt(Hz)")
+
+  for i in (0,1):
+    ax[1][i].set_xlim((10,1e6))
+    ax[0][i].set_ylim((1e3,3e6))
+    ax[1][i].set_xlabel("freq, Hz")
+    ax[0][i].set_ylabel("Transimpedance, Ohm")
+
+  for i in (0,1):
+    for j in (0,1):
+      ax[i][j].grid(which='both')
+      ax[i][j].legend()
+
+#################
+
+ddir='data7'
+(fig, ax) = plt.subplots(1,1, figsize=(12,8), layout='tight')
+
+xx=numpy.geomspace(1e4,2e6,101)
+n1 = 1e12*numpy.sqrt(4*1.38e-23*290/xx)
+n0 = 0.229
+ax.plot(xx, numpy.sqrt(n1**2+n0**2), 'k-', label="sqrt(0.229**2 + 4kBT/R)")
+#ax.plot(xx, xx*0 + n0, 'k-')
+
+for a in (1,2):
+  nn=[]
+  for s in (1,2,3,4,5,6):
+    pref = 'A%dS%d_L1e5'%(a,s)
+    n = get_noise(ddir, pref)
+    nn.append(get_noise(ddir, pref))
+
+  ax.semilogx(rnoms, nn, 'o', label="Amp #%d"%(a))
+
+
+
+ax.set_title("mean noise density between %.0f and %.0f kHz"%(fmin/1e3, fmax/1e3))
+ax.set_xlabel("nominal transimpedance, Ohm")
+ax.set_ylabel("current noise density, pA/sqrt(Hz)")
+
+ax.grid(which='both')
+ax.legend()
+
+ax.set_ylim((0.2,1))
+ax.set_xlim((2e4, 2e6))
+
+plt.savefig('plot_i2v8_noise.png')
+
+
