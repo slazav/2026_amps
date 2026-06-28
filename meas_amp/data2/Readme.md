@@ -1,0 +1,1 @@
+Noise measurements after improving power filtering (1 uF + 100nF to ground and 100R parallel resistor near the connector)
