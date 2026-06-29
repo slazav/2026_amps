@@ -13,47 +13,46 @@ set output "plot_C1R1e2_fre.png"
 set title "Ch:1, K:1e-2"
 
 plot [800:] []\
-  "C1_R1e2_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
-  "C1_R1e2_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
-  "C1_R1e2_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
-  "C1_R1e2_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
+  "data1/C1_R1e2_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
+  "data1/C1_R1e2_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
+  "data1/C1_R1e2_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
+  "data1/C1_R1e2_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
 
 
 set output "plot_C1R1e3_fre.png"
 set title "Ch:1, K:1e-3"
 
 plot [800:] []\
-  "C1_R1e3_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
-  "C1_R1e3_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
-  "C1_R1e3_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
-  "C1_R1e3_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
+  "data1/C1_R1e3_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
+  "data1/C1_R1e3_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
+  "data1/C1_R1e3_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
+  "data1/C1_R1e3_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
 
 
 set output "plot_C1R1e4_fre.png"
 set title "Ch:1, K:1e-4"
 
 plot [800:] []\
-  "C1_R1e4_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
-  "C1_R1e4_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
-  "C1_R1e4_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
-  "C1_R1e4_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
+  "data1/C1_R1e4_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
+  "data1/C1_R1e4_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
+  "data1/C1_R1e4_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
+  "data1/C1_R1e4_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
 
 
 set output "plot_C1R1e5_fre.png"
 set title "Ch:1, K:1e-5"
 
 plot [800:] []\
-  "C1_R1e5_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
-  "C1_R1e5_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
-  "C1_R1e5_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
-  "C1_R1e5_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
+  "data1/C1_R1e5_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
+  "data1/C1_R1e5_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
+  "data1/C1_R1e5_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
+  "data1/C1_R1e5_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
 
 set output "plot_C1R1e6_fre.png"
 set title "Ch:1, K:1e-6"
 
 plot [800:] []\
-  "C1_R1e6_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
-  "C1_R1e6_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
-  "C1_R1e6_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
-  "C1_R1e6_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
-
+  "data1/C1_R1e6_L1e2_fre.dat" u 1:($4/$8/1e2) w lp pt 7 title "Load: 100",\
+  "data1/C1_R1e6_L1e3_fre.dat" u 1:($4/$8/1e3) w lp pt 7 title "Load: 1k",\
+  "data1/C1_R1e6_L1e4_fre.dat" u 1:($4/$8/1e4) w lp pt 7 title "Load: 10k",\
+  "data1/C1_R1e6_L1e5_fre.dat" u 1:($4/$8/1e5) w lp pt 7 title "Load: 100k",\
