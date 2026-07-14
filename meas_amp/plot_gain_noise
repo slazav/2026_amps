@@ -1,0 +1,142 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+ddir='data'
+rr=(1e9, 10e3,  3300, 1000, 330, 100)
+
+(f, ref) = numpy.loadtxt("%s/noise_osc_A_0.01.dat"%(ddir), unpack=1)
+
+Vcc=19.1
+
+# amplitude plot
+def plot_amp(ax, name, label=""):
+  fname = "%s/%s_amp.dat"%(ddir,name)
+  if not os.path.isfile(fname): return
+
+  (f0,v0, f1,x1,y1,o1, f2,x2,y2,o2)  = numpy.loadtxt(fname, unpack=1)
+  v1 = 2.0*numpy.hypot(x1,y1)
+  v2 = 2.0*numpy.hypot(x2,y2)
+  k=v1/v2
+  ax.loglog(v2, v1/v2, '.-', label=label)
+  # save gain (use region where output voltage <8V)
+  gains[name] = numpy.mean(k[v1<8])
+
+# set amplitude axis
+def set_amp(ax):
+  xx=numpy.geomspace(0.01, 40, 101)
+  ax.loglog(xx, Vcc/xx, 'k-', label="Vcc/Vin", linewidth=1)
+
+  ax.set_title("gain vs input amplitude")
+  ax.set_xlabel("input voltage, Vpp")
+  ax.set_ylabel("gain")
+  ax.set_xlim((8e-4,3e1))
+  ax.set_ylim((0.1,800))
+  ax.grid(which='both')
+  ax.legend()
+
+# frequency plot
+def get_fre(name):
+  fname = "%s/%s_fre.dat"%(ddir,name)
+  if not os.path.isfile(fname): return (None, None)
+
+  (f0,v0, f1,x1,y1,o1, f2,x2,y2,o2)  = numpy.loadtxt(fname, unpack=1)
+  v1 = 2.0*numpy.hypot(x1,y1)
+  v2 = 2.0*numpy.hypot(x2,y2)
+  k=v1/v2
+#  ax.loglog(f0, k, '.-', label=label)
+  return (f1, k)
+
+# set frequency axis
+def set_fre(ax):
+  ax.set_title("gain vs frequncy")
+  ax.set_xlabel("freq, Hz")
+  ax.set_xlim((500,4e6))
+  ax.set_ylim((0.1,800))
+  ax.set_ylabel("gain")
+  ax.grid(which='both')
+  ax.legend()
+
+# plot noise
+def get_noise(name, gainf, gain):
+  fname = "%s/noise_%s.dat"%(ddir,name)
+  if not os.path.isfile(fname): return
+  (f, n) = numpy.loadtxt(fname, unpack=1)
+
+  ii=gain>0
+  gain = numpy.interp(f, gainf[ii], gain[ii])
+  NN = 1e9*numpy.sqrt(n-ref)/gain
+
+  ii=numpy.logical_and(f>1e3, f<3e4)
+  return numpy.mean(NN[ii])
+
+# set noise axes
+def set_noise(ax1,ax2):
+  ax1.set_title("output noise")
+  ax2.set_title("input noise")
+
+  ax1.set_ylim((10,1e4))
+  ax2.set_ylim((4,300))
+
+  for a in (ax1,ax2):
+    a.set_xlim((10,4e6))
+    a.set_xlabel("freq, Hz")
+    a.set_ylabel("voltage noise density, nV/sqrt(Hz)")
+    a.grid(which='both')
+    a.legend()
+
+def set_ax1(ax):
+  ax.set_title("gain vs set resistor")
+  ax.set_xlabel("R, Ohm")
+  ax.set_ylabel("gain")
+  ax.set_xlim((50,1e5))
+ # ax.set_ylim((0.1,800))
+  ax.grid(which='both')
+  ax.legend()
+
+def set_ax2(ax):
+  ax.set_title("noise vs gain")
+  ax.set_xlabel("gain")
+  ax.set_ylabel("noise, nV/sqrt(Hz)")
+#  ax.set_xlim((50,1e5))
+ # ax.set_ylim((0.1,800))
+  ax.grid(which='both')
+  ax.legend()
+
+
+(fig, ax) = plt.subplots(1,2, figsize=(12,5), layout='tight')
+
+xx=numpy.geomspace(50,1e5, 101)
+ax[0].loglog(xx, 1+50e3/xx, 'k-', label='1+50k/R', linewidth=1)
+
+xx=numpy.geomspace(1,1e3, 101)
+ax[1].loglog(xx, 6.6+76/xx, 'k-', label='6.5+76/gain', linewidth=1)
+
+for a in (1,2,):
+
+  GG=[]
+  NN=[]
+  for s in (1,2,3,4,5,6):
+    if s==6: amp=0.010 # (0.010, 0.019,)
+    if s==5: amp=0.013 # (0.006, 0.013,0.031,0.063)
+    if s==4: amp=0.019 # (0.009, 0.019, 0.038, 0.095, 0.190)
+    if s==3: amp=0.031 # (0.012, 0.031, 0.062, 0.123, 0.309, 0.617)
+    if s==2: amp=0.083 # (0.008, 0.017, 0.033, 0.083, 0.167, 0.333, 0.833, 1.667)
+    if s==1: amp=0.050 # (0.010, 0.020, 0.050, 0.100, 0.200, 0.500, 1.000, 2.000, 5.000, 10.000)
+    (gainf, gain) = get_fre("A%dS%d_A%.3f"%(a,s,amp))
+
+    ii = numpy.logical_and(gainf<1e4, gain>0)
+    GG.append(float(numpy.mean(gain[ii])))
+
+    NN.append(get_noise("A%dS%d_A_0.01"%(a,s), gainf, gain))
+
+  ax[0].loglog(rr, GG, "*", label="Ch%d"%(a))
+  ax[1].loglog(GG, NN, "*", label="Ch%d"%(a))
+
+
+set_ax1(ax[0])
+set_ax2(ax[1])
+
+plt.savefig('plot_amp_noise.png')

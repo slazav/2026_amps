@@ -3,7 +3,9 @@
 sc=0.01
 ch=A
 avr=10
-label=A2S6
+label=A2S1
+
+#label=osc
 
 device_c reload
 ~/PROG/tcl-exp/bin/get_noise -osc_dev osc -scale $sc\

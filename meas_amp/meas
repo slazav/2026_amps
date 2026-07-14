@@ -7,25 +7,39 @@ import datetime
 sys.path.append('../../')
 import py_homelab as lab
 
-a=1
-s=1
-rr=(1e9, 10e3,  3300, 1000, 330,   100)
-kk=(1.00, 6.00, 16.18, 51.2, 152.2, 501.5)
+a=1 # channel
+s=1 # gain setting
 
-amin=0.1/kk[s-1]
-if amin<0.001: amin=0.001
-amax=20/kk[s-1]
+meas_amp = 1
+meas_fre = 1
 
-freqs=[1e3]
-amps=numpy.geomspace(amin, amax, 51)
+rr=(1e9, 10e3,  3300, 1000, 330, 100)   # resistances
+kk=(1.00, 6.00, 16.2, 52.7, 158.8, 521) # approximate gains, to choose input voltage range
 
-lab.meas_sweep(fname="A%dS%d_amp.dat"%(a, s), amps=amps, freqs=freqs, chs='AB',
-                   ext_gen=True, ext_gen_ch=0,
-                   dt=1e-7, periods=100)
+## measure amplitude dependence:
+if meas_amp:
+  # full range: 0.1..24V at the output
+  amin = 0.1/kk[s-1]
+  amax=24/kk[s-1]
+  if amin<0.001: amin=0.001  # minimum supported with generator
+  amps=numpy.geomspace(amin, amax, 51)
 
-freqs = numpy.geomspace(1000,5e6, 101)
-amps  = (8/kk[s-1],)
+  fre=1e3
 
-lab.meas_sweep(fname="A%dS%d_fre.dat"%(a,s), amps=amps, freqs=freqs, chs='AB',
-                   ext_gen=True, ext_gen_ch=0,
-                   dt=1e-7, periods=100)
+  lab.meas_sweep(fname="A%dS%d_amp.dat"%(a, s), amps=amps, freqs=(fre,), chs='AB',
+                   ext_gen=True, ext_gen_ch=0, ref_ch=1,
+                   dt=1e-7, periods=100, twait=0.1)
+
+# measure frequncy dependence
+if meas_fre:
+  freqs = numpy.geomspace(1000,5e6, 101)
+
+  amps_o = (0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0)
+  for amp_o in amps_o:
+    amp_i = amp_o/kk[s-1]
+    if amp_i < 0.005: continue # skip too low amps
+
+    lab.meas_sweep(fname="A%dS%d_A%.3f_fre.dat"%(a,s, amp_i),
+                   amps=(amp_i,), freqs=freqs, chs='AB',
+                   ext_gen=True, ext_gen_ch=0, ref_ch=1,
+                   dt=1e-7, periods=100, twait=0.1)

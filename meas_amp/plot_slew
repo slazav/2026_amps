@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+ddir='data_n'
+
+
+# frequency plot
+def plot_fre(ax, name, label="", col=""):
+  fname = "%s/%s_fre.dat"%(ddir,name)
+  if not os.path.isfile(fname): return (None, None)
+
+  (f0,v0, f1,x1,y1,o1, f2,x2,y2,o2)  = numpy.loadtxt(fname, unpack=1)
+  v1 = 2.0*numpy.hypot(x1,y1)
+  v2 = 2.0*numpy.hypot(x2,y2)
+  k=v1/v2
+  ax.semilogx(f1, k, col+'.-', label=label)
+  return (f1, k)
+
+# set frequency axis
+def set_fre(ax):
+  ax.set_title("gain vs frequncy")
+  ax.set_xlabel("freq, Hz")
+  ax.set_xlim((500,4e6))
+  ax.set_ylim((0.1,2))
+  ax.set_ylabel("gain")
+  ax.grid(which='both')
+  ax.legend(loc="lower left")
+
+
+#ax[1][0].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")
+
+(fig, ax) = plt.subplots(1,1, figsize=(6,5), layout='tight')
+
+a=2
+s=1
+amps=()
+gain=None
+gainf=None
+if s==6: amps=(0.010, 0.019,)
+if s==5: amps=(0.006, 0.013,0.031,0.063)
+if s==4: amps=(0.009, 0.019, 0.038, 0.095, 0.190)
+if s==3: amps=(0.012, 0.031, 0.062, 0.123, 0.309, 0.617)
+if s==2: amps=(0.008, 0.017, 0.033, 0.083, 0.167, 0.333, 0.833, 1.667)
+if s==1: amps=(0.010, 0.020, 0.050, 0.100, 0.200, 0.500, 1.000, 2.000, 5.000, 10.000)
+
+for amp in amps:
+  plot_fre(ax, "A%dS%d_A%.3f"%(a,s,amp),
+           label="S%d Vin=%.3f"%(s,amp))
+
+for amp in amps:
+  xx=numpy.geomspace(1e4, 4e6, 101)
+  ax.loglog(xx, 6e6*amp/xx, 'k-', linewidth=1)
+
+set_fre(ax)
+
+plt.savefig('plot_amp_slew.png')
+
