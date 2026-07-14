@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+import matplotlib.pyplot as plt
+import numpy
+import os.path
+
+Vcc=19.1
+ddir='data'
+
+
+(fig, ax) = plt.subplots(1,2, figsize=(12,10), layout='tight')
+
+for a in (2,):
+
+  s=5 # always s=5 gain
+  name = "A%dS%d"%(a,s)
+
+  # load gain vs frequency
+  ff = "%s/%s_0.010_fre.dat"%(ddir, name)
+  if os.path.isfile(ff):
+    (f0,v0, f1,x1,y1,o1, f2,x2,y2,o2)  = numpy.loadtxt(ff, unpack=1)
+    v1 = 2.0*numpy.hypot(x1,y1)
+    v2 = 2.0*numpy.hypot(x2,y2)
+    k=v1/v2
+
+  # load data
+
+  # 0 Ohm
+  (nf0, nn0) = numpy.loadtxt("%s/noise_%s_A_0.05.dat"%(ddir,name), unpack=1)
+
+  kk=numpy.interp(nf0, f0,k)
+
+  # 100 Ohm
+  (nf2, nn2) = numpy.loadtxt("%s/noise_%s_L1e2_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf2, 1e9*numpy.sqrt(nn2), label="100")
+  ax[1].loglog(nf2, 1e9*numpy.sqrt(nn2-nn0)/kk, label="100")
+
+  # 1 kOhm
+  (nf3, nn3) = numpy.loadtxt("%s/noise_%s_L1e3_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf3, 1e9*numpy.sqrt(nn3), label="1k")
+  ax[1].loglog(nf3, 1e9*numpy.sqrt(nn3-nn0)/kk, label="1k")
+
+  # 10 kOhm
+  (nf4, nn4) = numpy.loadtxt("%s/noise_%s_L1e4_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf4, 1e9*numpy.sqrt(nn4), label="10k")
+  ax[1].loglog(nf4, 1e9*numpy.sqrt(nn4-nn0)/kk, label="10k")
+
+  # 100 kOhm (50mV scale)
+  (nf5, nn5) = numpy.loadtxt("%s/noise_%s_L1e5_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf5, 1e9*numpy.sqrt(nn5), label="100k")
+  ax[1].loglog(nf5, 1e9*numpy.sqrt(nn5-nn0)/kk, label="100k")
+
+  # 1 MOhm (50mV scale)
+  (nf6, nn6) = numpy.loadtxt("%s/noise_%s_L1e6_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf6, 1e9*numpy.sqrt(nn6), label="1M")
+  ax[1].loglog(nf6, 1e9*numpy.sqrt(nn6-nn0)/kk, label="1M")
+
+  # 10 MOhm (50mV scale)
+  (nf7, nn7) = numpy.loadtxt("%s/noise_%s_L1e7_A_0.05.dat"%(ddir,name), unpack=1)
+  ax[0].loglog(nf7, 1e9*numpy.sqrt(nn7), label="10M")
+  ax[1].loglog(nf7, 1e9*numpy.sqrt(nn7-nn0)/kk, label="10M")
+
+
+  ax[0].loglog(nf0, 1e9*numpy.sqrt(nn0), label="0")
+
+
+
+kB=1.38e-23
+T=290
+C =10e-12
+Rin=4e6
+for R in 1e2,1e3,1e4,1e5,1e6,1e7:
+  Rl = R*Rin/(R+Rin)
+  xx=numpy.geomspace(10, 1e7, 100)
+  vv = 1e9*numpy.sqrt(4*kB*T*Rl) / (1 + (Rl*C*2*numpy.pi*xx)**2)
+  ax[1].loglog(xx, vv, 'k-', linewidth=1)
+#  Rt = "%.0f"%(R)
+#  if R>=1e3: Rt = "%.0fk"%(R/1e3)
+#  if R>=1e6: Rt = "%.0fM"%(R/1e6)
+#  ax[1].text(1000, 1.2*vv[0], 'R=%s || 4M, C=%.0fpF'%(Rt, C*1e12))
+
+#ax[0].loglog(f, 1e9*numpy.sqrt(ref), label="Picoscope")
+
+ax[0].set_title("measured noise")
+ax[1].set_title("converted to input, with amplifier noise subtracted")
+
+ax[0].set_ylim((2e2,5e4))
+ax[1].set_ylim((2e-1,5e2))
+#ax[0][1].set_ylim((0,160))
+
+for i in (0,1):
+  ax[i].set_xlim((10,2e6))
+  ax[i].set_xlabel("freq, Hz")
+  ax[i].set_ylabel("voltage noise density, nV/sqrt(Hz)")
+  ax[i].grid(which='both')
+  ax[i].legend()
+
+plt.savefig('plot_amp_th.png')
+
